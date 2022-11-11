@@ -1,5 +1,6 @@
 import express from 'express'
 import dotenv from 'dotenv'
+import cors from 'cors'
 import { connectDB } from './config/db.js'
 
 import AuthRoute from './routes/Auth.js'
@@ -11,7 +12,8 @@ const port = process.env.PORT || 8000
 
 
 //middlewares
-app.use(express.json())
+app.use(express.json()) 
+app.use(cors())
 
 app.use('/',AuthRoute)
 

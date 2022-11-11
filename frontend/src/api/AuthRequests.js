@@ -6,3 +6,4 @@ const instance = axios.create({
 
 export const login=(formData)=>instance.post('/signin',formData)
 export const register=(formData)=>instance.post('signup',formData)
+export const getUser = ()=>instance.get('/users')

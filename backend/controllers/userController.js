@@ -59,3 +59,15 @@ export const userSignin=async (req,res,next) => {
     }
 }
 
+export const getUsers = async (req,res,next)=>{
+    try {
+        let users=await User.find().sort({'createdAt':-1}).limit(100).select('-password')
+        if(!users[0]){
+            return next(createError(400,'Users not found'))
+        }
+        res.status(200).json(users)
+    } catch (error) {
+        next(error)
+    }
+}
+
