@@ -1,5 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
+import { useDispatch } from 'react-redux'
 import {useNavigate} from 'react-router-dom'
 import { AuthForm } from '../Components/Styles/AuthForm.styled'
 import { AuthFormContainer } from '../Components/Styles/AuthFormContainer.styled'
@@ -10,12 +11,14 @@ import { FormField } from '../Components/Styles/FormField.styled';
 import { FormInput } from '../Components/Styles/FormInput.styled';
 import { TextLink } from '../Components/Styles/TextLink.styled';
 import { TextRed } from '../Components/Styles/TextRed.styled';
+import { signup } from '../redux/auth/authActions'
 
 function SignUp() {
   const navigate = useNavigate()
+  const dispatch=useDispatch()
   const { register, handleSubmit, formState: { errors } } = useForm();
   const onSubmit = (data) => {
-    console.log(data)
+    dispatch(signup(data))
   }
 
   return (

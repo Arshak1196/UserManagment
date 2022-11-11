@@ -1,4 +1,4 @@
-import {legacy_createStore as createStore,applyMiddleware, createStore} from 'redux'
+import {legacy_createStore as createStore,applyMiddleware} from 'redux'
 import thunk from 'redux-thunk'
 import rootReducer from './rootReducer'
 
@@ -26,7 +26,11 @@ function loadFromLocalStorage(){
 const peristedState = loadFromLocalStorage()
 
 const store = createStore(
-    rootReducer
+    rootReducer,
     peristedState,
     applyMiddleware(thunk)
 )
+
+store.subscribe(()=>saveToLocalStorage(store.getState()))
+
+export default store
