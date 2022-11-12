@@ -1,8 +1,6 @@
-import React, { useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { fetchUserdata } from '../functions/reducers'
-import * as UserAPI from '../api/AuthRequests'
-import { FETCH_USERS_FAILURE, FETCH_USERS_START, FETCH_USERS_SUCCESS } from '../functions/types'
+import { useSelector } from 'react-redux'
 
 const Div = styled.div`
  margin:0 1rem 0 1rem `
@@ -47,48 +45,102 @@ text-decoration: none;
 transition: background-color .3s;
 border: 1px solid #ddd;
 margin: 0 4px;
+cursor:pointer;
+`
+const SortDiv=styled.div`
+display:flex;
+justify-content: center;
+align-items: center;
+`
+const ArrowUp = styled.div`
+border: solid black;
+border-width: 0 3px 3px 0;
+display: inline-block;
+padding: 3px;
+transform: rotate(-135deg);
+-webkit-transform: rotate(-135deg);
+margin-right:10px;
+cursor:pointer;
+`
+const ArrowDown = styled.div`
+border: solid black;
+border-width: 0 3px 3px 0;
+display: inline-block;
+padding: 3px;
+transform: rotate(45deg);
+  -webkit-transform: rotate(45deg);
 `
 
 function UsersTable() {
+  let users = useSelector((state) => state.users.users)
+  let length = users.length
   const [tableData, setTableData] = useState([])
-  const [pages,setPages]=useState(0)
-  const [{ user, loading, error }, dispatch] = useReducer(
-    fetchUserdata, {
-    loading: false,
-    user: null,
-    error: false
-  }
-  )
-  useEffect(() => {
-    getUserdetails()
-  }, [])
+  const [filterData,setFilterData]=useState([])
+  const [pages, setPages] = useState(0)
+  const [currentpage, setCurrentpage] = useState(1)
+  const [rowperPage, setRowperPage] = useState(15)
 
-  console.log(user?.length)
+  useEffect(()=>{
+    console.log('ello')
+    setFilterData(users) 
+  },[])
 
-  const getUserdetails = async () => {
-    dispatch({ type: FETCH_USERS_START })
-    try {
-      let data = await UserAPI.getUser()
-      setTableData(data.data.slice(0, 10))
-      dispatch({ type: FETCH_USERS_SUCCESS, payload: data.data })
-    } catch (error) {
-      dispatch({ type: FETCH_USERS_FAILURE, payload: error.response.data.message })
+  useEffect(() => {    
+    console.log('hai')
+    setTableData(filterData.slice(0, rowperPage))
+  }, [filterData])
+
+  const handleNext = () => {
+    if(currentpage<filterData.length/rowperPage){
+      setTableData(users.slice((currentpage * rowperPage), (currentpage * rowperPage) + rowperPage))
+      setCurrentpage(currentpage + 1)
     }
   }
+
+  const handlePrevious = () => {
+    console.log(currentpage)
+    if (currentpage === 0) {
+      return
+    }
+    setCurrentpage(currentpage - 1)
+    setTableData(users.slice((currentpage * rowperPage) - rowperPage, (currentpage * rowperPage)))
+  }
+
+  const sortAscending=()=>{
+    let data=filterData.sort((a,b)=>{
+      let fa = a.fname.toLowerCase(),
+        fb = b.fname.toLowerCase();
+    if (fa < fb) {
+        return -1;
+    }
+    if (fa > fb) {
+        return 1;
+    }
+    return 0;
+    })
+    console.log(121212)
+    setFilterData(data)
+    console.log(filterData)
+  }
+
 
   return (
     <Div>
       <Table>
         <thead>
-          <Th>First Name</Th>
+          <tr>
+          <Th>Sl.No</Th>
+          <Th>First Name <SortDiv><ArrowUp onClick={()=>sortAscending()} /> <ArrowDown/></SortDiv></Th>
           <Th>Last Name</Th>
           <Th>Email</Th>
+          </tr>
         </thead>
         <tbody>
           {tableData[0] &&
-            tableData.map((user) => {
+            tableData.map((user, index) => {
               return (
                 <Tr key={user.fname}>
+                  <Td>{index + 1 + ((currentpage - 1) * rowperPage)}</Td>
                   <Td>{user.fname}</Td>
                   <Td>{user.lname}</Td>
                   <Td>{user.email}</Td>
@@ -99,13 +151,13 @@ function UsersTable() {
       </Table>
       <Center>
         <Pagination>
-          <PgNum >&laquo;</PgNum>
-          <PgNum >1</PgNum>
+          <PgNum onClick={() => handlePrevious()} >&laquo;</PgNum>
+          {/* <PgNum >1</PgNum>
           <PgNum >2</PgNum>
           <PgNum >3</PgNum>
           <PgNum >4</PgNum>
-          <PgNum >5</PgNum>
-          <PgNum >&raquo;</PgNum>          
+          <PgNum >5</PgNum> */}
+          <PgNum onClick={() => handleNext()} >&raquo;</PgNum>
         </Pagination>
       </Center>
     </Div>

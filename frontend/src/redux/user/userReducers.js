@@ -1,20 +1,25 @@
-import { FETCH_USERS_FAILURE, FETCH_USERS_START, FETCH_USERS_SUCCESS } from "./types";
+import { FETCH_USERS_FAILURE, FETCH_USERS_START, FETCH_USERS_SUCCESS } from "./userTypes"
 
 
-export function fetchUserdata(state, action) {
+const INITIAL_STATE = {
+    users: null,
+    loading: false,
+    error: null
+}
+
+const usersReducer = (state = INITIAL_STATE, action) => {
     switch (action.type) {
         case FETCH_USERS_START:
             return {
                 ...state,
-                loading: true,
-                error: false
+                loading: true
             }
         case FETCH_USERS_SUCCESS:
             return {
                 ...state,
                 loading: false,
-                user: action.payload,
-                error: false
+                users: action.payload,
+                error: null
             }
         case FETCH_USERS_FAILURE:
             return {
@@ -26,3 +31,5 @@ export function fetchUserdata(state, action) {
             return state
     }
 }
+
+export default usersReducer
