@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useSelector } from 'react-redux'
+import {FormInput} from './Styles/FormInput.styled'
+import { set } from 'react-hook-form'
 
 const Div = styled.div`
  margin:0 1rem 0 1rem `
@@ -69,41 +71,38 @@ display: inline-block;
 padding: 3px;
 transform: rotate(45deg);
   -webkit-transform: rotate(45deg);
+  cursor:pointer;
 `
 
 function UsersTable() {
   let users = useSelector((state) => state.users.users)
-  let length = users.length
   const [tableData, setTableData] = useState([])
   const [filterData,setFilterData]=useState([])
-  const [pages, setPages] = useState(0)
   const [currentpage, setCurrentpage] = useState(1)
   const [rowperPage, setRowperPage] = useState(15)
+  const [searchTerm,setSearchTerm]=useState('')
 
   useEffect(()=>{
-    console.log('ello')
     setFilterData(users) 
   },[])
 
   useEffect(() => {    
-    console.log('hai')
     setTableData(filterData.slice(0, rowperPage))
   }, [filterData])
 
   const handleNext = () => {
     if(currentpage<filterData.length/rowperPage){
-      setTableData(users.slice((currentpage * rowperPage), (currentpage * rowperPage) + rowperPage))
+      setTableData(filterData.slice((currentpage * rowperPage), (currentpage * rowperPage) + rowperPage))
       setCurrentpage(currentpage + 1)
     }
   }
 
   const handlePrevious = () => {
-    console.log(currentpage)
-    if (currentpage === 0) {
+    if (currentpage === 1) {
       return
     }
+    setTableData(filterData.slice((currentpage-2)*rowperPage,(currentpage-1)*rowperPage))
     setCurrentpage(currentpage - 1)
-    setTableData(users.slice((currentpage * rowperPage) - rowperPage, (currentpage * rowperPage)))
   }
 
   const sortAscending=()=>{
@@ -118,19 +117,41 @@ function UsersTable() {
     }
     return 0;
     })
-    console.log(121212)
-    setFilterData(data)
-    console.log(filterData)
+    setFilterData([...data])
   }
 
+  const sortDesending=()=>{
+    let data=filterData.sort((a,b)=>{
+      let fa = a.fname.toLowerCase(),
+        fb = b.fname.toLowerCase();
+    if (fa < fb) {
+        return 1;
+    }
+    if (fa > fb) {
+        return -1;
+    }
+    return 0;
+    })
+    setFilterData([...data])
+  }
+
+  const handleSearch=(e)=>{
+    setSearchTerm(e.target.value)
+    console.log(searchTerm)
+    const searchResults = users.filter((user)=>{
+      return Object.values(user).join("").toLowerCase().includes(searchTerm?.toLowerCase())
+    })
+    setFilterData([...searchResults])
+  }
 
   return (
     <Div>
+      <FormInput size='small' type='text' placeholder='search' value={searchTerm} onChange={handleSearch}></FormInput>
       <Table>
         <thead>
           <tr>
           <Th>Sl.No</Th>
-          <Th>First Name <SortDiv><ArrowUp onClick={()=>sortAscending()} /> <ArrowDown/></SortDiv></Th>
+          <Th>First Name <SortDiv><ArrowUp onClick={()=>sortAscending()} /> <ArrowDown onClick={()=>sortDesending()}/></SortDiv></Th>
           <Th>Last Name</Th>
           <Th>Email</Th>
           </tr>
@@ -152,11 +173,7 @@ function UsersTable() {
       <Center>
         <Pagination>
           <PgNum onClick={() => handlePrevious()} >&laquo;</PgNum>
-          {/* <PgNum >1</PgNum>
-          <PgNum >2</PgNum>
-          <PgNum >3</PgNum>
-          <PgNum >4</PgNum>
-          <PgNum >5</PgNum> */}
+          <PgNum >{currentpage}</PgNum>
           <PgNum onClick={() => handleNext()} >&raquo;</PgNum>
         </Pagination>
       </Center>

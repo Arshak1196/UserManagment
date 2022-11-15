@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8000/'
+    baseURL: 'https://adrixustech.herokuapp.com/'
   });
 
 export const login=(formData)=>instance.post('/signin',formData)
